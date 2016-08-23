@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"testing"
-	
+
 	"github.com/gocraft/dbr"
 	"upper.io/db.v2"
 	"upper.io/db.v2/lib/sqlbuilder"
@@ -15,6 +15,14 @@ import (
 const (
 	testRows = 1000
 )
+
+func mustOpen() sqlbuilder.Database {
+	sess, err := ADAPTER.Open(settings)
+	if err != nil {
+		panic(err.Error())
+	}
+	return sess
+}
 
 func updatedArtistN(i int) string {
 	return fmt.Sprintf("Updated Artist %d", i%testRows)
