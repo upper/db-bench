@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"math/rand"
+	"log"
+	"os"
 	"testing"
 
 	"github.com/gocraft/dbr"
@@ -15,6 +17,14 @@ import (
 const (
 	testRows = 1000
 )
+
+func TestMain(m *testing.M) {
+	if err := tearUp(); err != nil {
+		log.Fatal("tearUp", err)
+	}
+
+	os.Exit(m.Run())
+}
 
 func mustOpen() sqlbuilder.Database {
 	sess, err := ADAPTER.Open(settings)
