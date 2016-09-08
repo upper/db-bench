@@ -15,7 +15,7 @@ const (
 	insertIntoArtistWithPlaceholderReturningID = "INSERT INTO `artist` (`name`) VALUES(?)"
 	selectFromArtistWhereName                  = "SELECT * FROM `artist` WHERE `name` = ?"
 	updateArtistWhereName                      = "UPDATE `artist` SET `name` = ? WHERE `name` = ?"
-	deleteArtistWhereName                      = "DELETE FROM `artis` WHERE `name` = $1"
+	deleteArtistWhereName                      = "DELETE FROM `artist` WHERE `name` = ?"
 )
 
 const (
@@ -119,5 +119,13 @@ func tearUp() error {
 		}
 	}
 
+	return nil
+}
+
+func beginSQL(d *sql.DB) (*sql.DB, error) {
+	return d, nil
+}
+
+func doneSQL(t *sql.DB) error {
 	return nil
 }
