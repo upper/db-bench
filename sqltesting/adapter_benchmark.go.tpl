@@ -3,15 +3,15 @@ package ADAPTER
 import (
 	"database/sql"
 	"fmt"
-	"math/rand"
 	"log"
+	"math/rand"
 	"os"
 	"testing"
 
 	"github.com/gocraft/dbr"
 	"upper.io/db.v2"
-	"upper.io/db.v2/lib/sqlbuilder"
 	"upper.io/db.v2/ADAPTER"
+	"upper.io/db.v2/lib/sqlbuilder"
 )
 
 const (
@@ -375,14 +375,30 @@ func BenchmarkSQLInsert(b *testing.B) {
 
 	driver := sess.Driver().(*sql.DB)
 
-	if _, err = driver.Exec(truncateArtist); err != nil {
+	db, err := beginSQL(driver)
+	if err != nil {
+		b.Fatal("unable to initialize driver-specific connection:", err)
+	}
+
+	if _, err = db.Exec(truncateArtist); err != nil {
 		b.Fatal(err)
+	}
+	if err := doneSQL(db); err != nil {
+		b.Fatal("unable to dispose of database-specific connection:", err)
 	}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if _, err = driver.Exec(insertHayaoMiyazaki); err != nil {
+		db, err := beginSQL(driver)
+		if err != nil {
+			b.Fatal("unable to initialize driver-specific connection:", err)
+		}
+
+		if _, err = db.Exec(insertHayaoMiyazaki); err != nil {
 			b.Fatal(err)
+		}
+		if err := doneSQL(db); err != nil {
+			b.Fatal("unable to dispose of database-specific connection:", err)
 		}
 	}
 }
@@ -423,8 +439,15 @@ func BenchmarkSQLInsertWithArgs(b *testing.B) {
 
 	driver := sess.Driver().(*sql.DB)
 
-	if _, err = driver.Exec(truncateArtist); err != nil {
+	db, err := beginSQL(driver)
+	if err != nil {
+		b.Fatal("unable to initialize driver-specific connection:", err)
+	}
+	if _, err = db.Exec(truncateArtist); err != nil {
 		b.Fatal(err)
+	}
+	if err := doneSQL(db); err != nil {
+		b.Fatal("unable to dispose of database-specific connection:", err)
 	}
 
 	args := []interface{}{
@@ -435,10 +458,17 @@ func BenchmarkSQLInsertWithArgs(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if rows, err = driver.Query(insertIntoArtistWithPlaceholderReturningID, args...); err != nil {
+		db, err := beginSQL(driver)
+		if err != nil {
+			b.Fatal("unable to initialize driver-specific connection:", err)
+		}
+		if rows, err = db.Query(insertIntoArtistWithPlaceholderReturningID, args...); err != nil {
 			b.Fatal(err)
 		}
 		rows.Close()
+		if err := doneSQL(db); err != nil {
+			b.Fatal("unable to dispose of database-specific connection:", err)
+		}
 	}
 }
 
@@ -485,11 +515,22 @@ func BenchmarkSQLPreparedInsertNoArguments(b *testing.B) {
 
 	driver := sess.Driver().(*sql.DB)
 
-	if _, err = driver.Exec(truncateArtist); err != nil {
+	db, err := beginSQL(driver)
+	if err != nil {
+		b.Fatal("unable to initialize driver-specific connection:", err)
+	}
+	if _, err = db.Exec(truncateArtist); err != nil {
 		b.Fatal(err)
 	}
+	if err := doneSQL(db); err != nil {
+		b.Fatal("unable to dispose of database-specific connection:", err)
+	}
 
-	stmt, err := driver.Prepare(insertHayaoMiyazaki)
+	db, err = beginSQL(driver)
+	if err != nil {
+		b.Fatal("unable to initialize driver-specific connection:", err)
+	}
+	stmt, err := db.Prepare(insertHayaoMiyazaki)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -500,6 +541,9 @@ func BenchmarkSQLPreparedInsertNoArguments(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+	if err := doneSQL(db); err != nil {
+		b.Fatal("unable to dispose of database-specific connection:", err)
+	}
 }
 
 func BenchmarkSQLPreparedInsertWithArguments(b *testing.B) {
@@ -508,11 +552,22 @@ func BenchmarkSQLPreparedInsertWithArguments(b *testing.B) {
 
 	driver := sess.Driver().(*sql.DB)
 
-	if _, err := driver.Exec(truncateArtist); err != nil {
+	db, err := beginSQL(driver)
+	if err != nil {
+		b.Fatal("unable to initialize driver-specific connection:", err)
+	}
+	if _, err := db.Exec(truncateArtist); err != nil {
 		b.Fatal(err)
 	}
+	if err := doneSQL(db); err != nil {
+		b.Fatal("unable to dispose of database-specific connection:", err)
+	}
 
-	stmt, err := driver.Prepare(insertIntoArtistWithPlaceholderReturningID)
+	db, err = beginSQL(driver)
+	if err != nil {
+		b.Fatal("unable to initialize driver-specific connection:", err)
+	}
+	stmt, err := db.Prepare(insertIntoArtistWithPlaceholderReturningID)
 
 	if err != nil {
 		b.Fatal(err)
@@ -530,6 +585,9 @@ func BenchmarkSQLPreparedInsertWithArguments(b *testing.B) {
 			b.Fatal(err)
 		}
 		rows.Close()
+	}
+	if err := doneSQL(db); err != nil {
+		b.Fatal("unable to dispose of database-specific connection:", err)
 	}
 }
 
@@ -576,11 +634,22 @@ func BenchmarkSQLPreparedInsertWithVariableArgs(b *testing.B) {
 
 	driver := sess.Driver().(*sql.DB)
 
-	if _, err := driver.Exec(truncateArtist); err != nil {
+	db, err := beginSQL(driver)
+	if err != nil {
+		b.Fatal("unable to initialize driver-specific connection:", err)
+	}
+	if _, err := db.Exec(truncateArtist); err != nil {
 		b.Fatal(err)
 	}
+	if err := doneSQL(db); err != nil {
+		b.Fatal("unable to dispose of database-specific connection:", err)
+	}
 
-	stmt, err := driver.Prepare(insertIntoArtistWithPlaceholderReturningID)
+	db, err = beginSQL(driver)
+	if err != nil {
+		b.Fatal("unable to initialize driver-specific connection:", err)
+	}
+	stmt, err := db.Prepare(insertIntoArtistWithPlaceholderReturningID)
 
 	if err != nil {
 		b.Fatal(err)
@@ -597,6 +666,9 @@ func BenchmarkSQLPreparedInsertWithVariableArgs(b *testing.B) {
 			b.Fatal(err)
 		}
 		rows.Close()
+	}
+	if err := doneSQL(db); err != nil {
+		b.Fatal("unable to dispose of database-specific connection:", err)
 	}
 }
 
@@ -698,10 +770,17 @@ func BenchmarkSQLSelect(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if res, err = driver.Query(selectFromArtistWhereName, artistN(i)); err != nil {
+		db, err := beginSQL(driver)
+		if err != nil {
+			b.Fatal("unable to initialize driver-specific connection:", err)
+		}
+		if res, err = db.Query(selectFromArtistWhereName, artistN(i)); err != nil {
 			b.Fatal(err)
 		}
 		res.Close()
+		if err := doneSQL(db); err != nil {
+			b.Fatal("unable to dispose of database-specific connection:", err)
+		}
 	}
 }
 
@@ -743,7 +822,12 @@ func BenchmarkSQLPreparedSelect(b *testing.B) {
 
 	driver := sess.Driver().(*sql.DB)
 
-	stmt, err := driver.Prepare(selectFromArtistWhereName)
+	db, err := beginSQL(driver)
+	if err != nil {
+		b.Fatal("unable to initialize driver-specific connection:", err)
+	}
+
+	stmt, err := db.Prepare(selectFromArtistWhereName)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -756,6 +840,9 @@ func BenchmarkSQLPreparedSelect(b *testing.B) {
 			b.Fatal(err)
 		}
 		res.Close()
+	}
+	if err := doneSQL(db); err != nil {
+		b.Fatal("unable to dispose of database-specific connection:", err)
 	}
 }
 
@@ -803,8 +890,15 @@ func BenchmarkSQLUpdate(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if _, err = driver.Exec(updateArtistWhereName, updatedArtistN(i), artistN(i)); err != nil {
+		db, err := beginSQL(driver)
+		if err != nil {
+			b.Fatal("unable to initialize driver-specific connection:", err)
+		}
+		if _, err = db.Exec(updateArtistWhereName, updatedArtistN(i), artistN(i)); err != nil {
 			b.Fatal(err)
+		}
+		if err := doneSQL(db); err != nil {
+			b.Fatal("unable to dispose of database-specific connection:", err)
 		}
 	}
 }
@@ -821,7 +915,11 @@ func BenchmarkSQLPreparedUpdate(b *testing.B) {
 
 	driver := sess.Driver().(*sql.DB)
 
-	stmt, err := driver.Prepare(updateArtistWhereName)
+	db, err := beginSQL(driver)
+	if err != nil {
+		b.Fatal("unable to initialize driver-specific connection:", err)
+	}
+	stmt, err := db.Prepare(updateArtistWhereName)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -831,6 +929,9 @@ func BenchmarkSQLPreparedUpdate(b *testing.B) {
 		if _, err = stmt.Exec(updatedArtistN(i), artistN(i)); err != nil {
 			b.Fatal(err)
 		}
+	}
+	if err := doneSQL(db); err != nil {
+		b.Fatal("unable to dispose of database-specific connection:", err)
 	}
 }
 
@@ -848,8 +949,15 @@ func BenchmarkSQLDelete(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if _, err = driver.Exec(deleteArtistWhereName, artistN(i)); err != nil {
+		db, err := beginSQL(driver)
+		if err != nil {
+			b.Fatal("unable to initialize driver-specific connection:", err)
+		}
+		if _, err = db.Exec(deleteArtistWhereName, artistN(i)); err != nil {
 			b.Fatal(err)
+		}
+		if err := doneSQL(db); err != nil {
+			b.Fatal("unable to dispose of database-specific connection:", err)
 		}
 	}
 }
@@ -865,7 +973,11 @@ func BenchmarkSQLPreparedDelete(b *testing.B) {
 
 	driver := sess.Driver().(*sql.DB)
 
-	stmt, err := driver.Prepare(deleteArtistWhereName)
+	db, err := beginSQL(driver)
+	if err != nil {
+		b.Fatal("unable to initialize driver-specific connection:", err)
+	}
+	stmt, err := db.Prepare(deleteArtistWhereName)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -875,5 +987,8 @@ func BenchmarkSQLPreparedDelete(b *testing.B) {
 		if _, err = stmt.Exec(artistN(i)); err != nil {
 			b.Fatal(err)
 		}
+	}
+	if err := doneSQL(db); err != nil {
+		b.Fatal("unable to dispose of database-specific connection:", err)
 	}
 }
