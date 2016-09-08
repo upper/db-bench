@@ -122,3 +122,11 @@ func tearUp() error {
 
 	return nil
 }
+
+func beginSQL(d *sql.DB) (*sql.DB, error) {
+	return d, nil
+}
+
+func doneSQL(t *sql.DB) error {
+	return nil
+}
