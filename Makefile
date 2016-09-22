@@ -6,5 +6,5 @@ clean:
 bench:
 	mkdir -p results && \
 	for ADAPTER in postgresql mysql sqlite ql mongo; do \
-		$(MAKE) bench -C $$ADAPTER > results/$$ADAPTER.txt; \
+		time ($(MAKE) bench -C $$ADAPTER | tee results/$$ADAPTER.txt); \
 	done
