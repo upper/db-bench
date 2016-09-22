@@ -1,4 +1,4 @@
-//go:generate bash -c "sed -e 's/ADAPTER/sqlite/g' -e 's/DRIVER/sqlite3/g' ../adapter_benchmark.go.tpl > generated_benchmark_test.go"
+//go:generate bash -c "sed -e 's/ADAPTER/sqlite/g' -e 's/DRIVER/sqlite3/g' ../benchmark.go.tpl > generated_benchmark_test.go"
 package sqlite
 
 import (
