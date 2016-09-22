@@ -1,4 +1,4 @@
-//go:generate bash -c "sed -e 's/ADAPTER/mysql/g' -e 's/DRIVER/mysql/g' ../sqltesting/adapter_benchmark.go.tpl > generated_benchmark_test.go"
+//go:generate bash -c "sed -e 's/ADAPTER/mysql/g' -e 's/DRIVER/mysql/g' ../benchmark.go.tpl > generated_benchmark_test.go"
 package mysql
 
 import (

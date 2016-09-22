@@ -1,4 +1,4 @@
-//go:generate bash -c "sed -e 's/ADAPTER/postgresql/g' -e 's/DRIVER/postgres/g' ../sqltesting/adapter_benchmark.go.tpl > generated_benchmark_test.go"
+//go:generate bash -c "sed -e 's/ADAPTER/postgresql/g' -e 's/DRIVER/postgres/g' ../benchmark.go.tpl > generated_benchmark_test.go"
 package postgresql
 
 import (

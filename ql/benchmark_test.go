@@ -1,4 +1,4 @@
-//go:generate bash -c "sed -e 's/ADAPTER/ql/g' -e 's/DRIVER/ql/g' ../sqltesting/adapter_benchmark.go.tpl > generated_benchmark_test.go"
+//go:generate bash -c "sed -e 's/ADAPTER/ql/g' -e 's/DRIVER/ql/g' ../benchmark.go.tpl > generated_benchmark_test.go"
 package ql
 
 import (
